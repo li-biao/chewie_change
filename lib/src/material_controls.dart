@@ -43,7 +43,7 @@ class _MaterialControlsState extends State<MaterialControls> {
         absorbing: _hideStuff,
         child: Column(
           children: <Widget>[
-            _buildHeader(context, chewieController.title),
+            chewieController.isFullScreen ? _buildHeader(context, chewieController.title) : new Container(),
             _latestValue != null && !_latestValue.isPlaying && _latestValue.duration == null || _latestValue.isBuffering
                 ? Expanded(
                     child: Center(
@@ -90,29 +90,23 @@ class _MaterialControlsState extends State<MaterialControls> {
       opacity: _hideStuff ? 0.0 : 1.0,
       duration: new Duration(milliseconds: 300),
       child: new Container(
-        color: chewieController.isFullScreen ? darkColor : Colors.transparent,
+        color: darkColor,
         height: barHeight,
         child: new Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             new IconButton(
-              onPressed: chewieController.isFullScreen
-                  ? _onExpandCollapse
-                  : () {
-                      Navigator.of(context).pop();
-                    },
+              onPressed: _onExpandCollapse,
               color: lightColor,
               icon: new Icon(Icons.chevron_left),
             ),
-            chewieController.isFullScreen
-                ? new Text(
-                    '$title',
-                    style: new TextStyle(
-                      color: lightColor,
-                      fontSize: 18.0,
-                    ),
-                  )
-                : new Container(),
+            new Text(
+              '$title',
+              style: new TextStyle(
+                color: lightColor,
+                fontSize: 18.0,
+              ),
+            ),
           ],
         ),
       ),
