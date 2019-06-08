@@ -51,7 +51,7 @@ class _VideoProgressBarState extends State<MaterialVideoProgressBar> {
   @override
   Widget build(BuildContext context) {
     void seekToRelativePosition(Offset globalPosition) {
-      final RenderBox box = context.findRenderObject();
+      final box = context.findRenderObject() as RenderBox;
       final Offset tapPos = box.globalToLocal(globalPosition);
       final double relative = tapPos.dx / box.size.width;
       final Duration position = controller.value.duration * relative;
@@ -59,21 +59,19 @@ class _VideoProgressBarState extends State<MaterialVideoProgressBar> {
     }
 
     return GestureDetector(
-      child: (controller.value.hasError)
-          ? Text(controller.value.errorDescription)
-          : Center(
-              child: Container(
-                height: MediaQuery.of(context).size.height / 2,
-                width: MediaQuery.of(context).size.width,
-                color: Colors.transparent,
-                child: CustomPaint(
-                  painter: _ProgressBarPainter(
-                    controller.value,
-                    widget.colors,
-                  ),
-                ),
-              ),
+      child: Center(
+        child: Container(
+          height: MediaQuery.of(context).size.height / 2,
+          width: MediaQuery.of(context).size.width,
+          color: Colors.transparent,
+          child: CustomPaint(
+            painter: _ProgressBarPainter(
+              controller.value,
+              widget.colors,
             ),
+          ),
+        ),
+      ),
       onHorizontalDragStart: (DragStartDetails details) {
         if (!controller.value.initialized) {
           return;
@@ -144,9 +142,10 @@ class _ProgressBarPainter extends CustomPainter {
     if (!value.initialized) {
       return;
     }
-    final double playedPart = value.position.inMilliseconds /
-        value.duration.inMilliseconds *
-        size.width;
+    final double playedPartPercent =
+        value.position.inMilliseconds / value.duration.inMilliseconds;
+    final double playedPart =
+        playedPartPercent > 1 ? size.width : playedPartPercent * size.width;
     for (DurationRange range in value.buffered) {
       final double start = range.startFraction(value.duration) * size.width;
       final double end = range.endFraction(value.duration) * size.width;
