@@ -44,7 +44,7 @@ class _MaterialControlsState extends State<MaterialControls> {
         _cancelAndRestartTimer();
       },
       child: AbsorbPointer(
-        absorbing: _hideStuff,
+        absorbing: false,
         child: Column(
           children: <Widget>[
             chewieController.isFullScreen ? _buildHeader(context, chewieController.title) : new Container(),
