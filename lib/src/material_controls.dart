@@ -33,6 +33,10 @@ class _MaterialControlsState extends State<MaterialControls> {
   final lightColor = Color.fromRGBO(255, 255, 255, 0.85);
   final darkColor = Color.fromRGBO(1, 1, 1, 0.35);
 
+  var _beginSecond = 0;
+  var _beginX = 0;
+  var _seekPostion = Duration();
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -129,7 +133,7 @@ class _MaterialControlsState extends State<MaterialControls> {
             _buildPlayPause(controller),
             chewieController.isLive ? Expanded(child: const Text('LIVE')) : _buildPosition(iconColor),
             chewieController.isLive ? const SizedBox() : _buildProgressBar(),
-            chewieController.allowMuting ? _buildMuteButton(controller) : Container(),
+            // chewieController.allowMuting ? _buildMuteButton(controller) : Container(),
             chewieController.allowFullScreen ? _buildExpandButton() : Container(),
           ],
         ),
@@ -145,10 +149,10 @@ class _MaterialControlsState extends State<MaterialControls> {
         duration: Duration(milliseconds: 300),
         child: Container(
           height: barHeight,
-          margin: EdgeInsets.only(right: 12.0),
+          margin: EdgeInsets.only(right: 6.0),
           padding: EdgeInsets.only(
-            left: 8.0,
-            right: 8.0,
+            left: 6.0,
+            right: 5.0,
           ),
           child: Center(
             child: Icon(
@@ -173,28 +177,69 @@ class _MaterialControlsState extends State<MaterialControls> {
                   _hideStuff = true;
                 });
               },
+        onHorizontalDragStart: (details) {
+          _dragging = true;
+          _beginX = details.globalPosition.dx.toInt();
+          _beginSecond = _latestValue.position.inSeconds;
+          setState(() {});
+        },
+        onHorizontalDragUpdate: (details) {
+          var _offsetX = details.globalPosition.dx.toInt() - _beginX;
+          var _endSecd = _beginSecond + _offsetX;
+          if (_endSecd < 0) {
+            _endSecd = 0;
+          } else if (_endSecd > _latestValue.duration.inSeconds) {
+            _endSecd = _latestValue.duration.inSeconds;
+          }
+          setState(() {
+            _seekPostion = Duration(seconds: _endSecd);
+          });
+        },
+        onHorizontalDragEnd: (details) {
+          _dragging = false;
+          setState(() {
+            controller.seekTo(_seekPostion);
+          });
+        },
         child: Container(
           color: Colors.transparent,
           child: Center(
             child: AnimatedOpacity(
-              opacity: _latestValue != null && !_latestValue.isPlaying && !_dragging ? 1.0 : 0.0,
+              opacity: _latestValue != null && (!_latestValue.isPlaying || _dragging) ? 1.0 : 0.0,
               duration: Duration(milliseconds: 300),
-              child: GestureDetector(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(48.0),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: Icon(
-                      Icons.play_arrow,
-                      size: 32.0,
-                      color: lightColor,
+              child: _dragging
+                  ? Container(
+                      width: 120,
+                      height: 60,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Text(
+                        formatDuration(_seekPostion),
+                        style: new TextStyle(
+                          color: Color(0xFFFFFFFF),
+                          fontSize: 26.0,
+                        ),
+                      ),
+                    )
+                  : GestureDetector(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(48.0),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Icon(
+                            Icons.play_arrow,
+                            size: 32.0,
+                            color: lightColor,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
             ),
           ),
         ),
@@ -246,8 +291,8 @@ class _MaterialControlsState extends State<MaterialControls> {
         color: Colors.transparent,
         margin: EdgeInsets.only(left: 8.0, right: 4.0),
         padding: EdgeInsets.only(
-          left: 12.0,
-          right: 12.0,
+          left: 6.0,
+          right: 6.0,
         ),
         child: Icon(
           controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
@@ -262,7 +307,7 @@ class _MaterialControlsState extends State<MaterialControls> {
     final duration = _latestValue != null && _latestValue.duration != null ? _latestValue.duration : Duration.zero;
 
     return Padding(
-      padding: EdgeInsets.only(right: 24.0),
+      padding: EdgeInsets.only(right: 16.0),
       child: Text(
         '${formatDuration(position)} / ${formatDuration(duration)}',
         style: TextStyle(
@@ -348,7 +393,7 @@ class _MaterialControlsState extends State<MaterialControls> {
   Widget _buildProgressBar() {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.only(right: 20.0),
+        padding: EdgeInsets.only(right: 10.0),
         child: MaterialVideoProgressBar(
           controller,
           onDragStart: () {
