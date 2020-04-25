@@ -179,11 +179,17 @@ class _MaterialControlsState extends State<MaterialControls> {
               },
         onHorizontalDragStart: (details) {
           _dragging = true;
-          _beginX = details.globalPosition.dx.toInt();
+          _beginX = 0;
           _beginSecond = _latestValue.position.inSeconds;
           setState(() {});
         },
         onHorizontalDragUpdate: (details) {
+          if (!_dragging) {
+            return;
+          }
+          if (_beginX == 0) {
+            _beginX = details.globalPosition.dx.toInt();
+          }
           var _offsetX = details.globalPosition.dx.toInt() - _beginX;
           var _endSecd = _beginSecond + _offsetX;
           if (_endSecd < 0) {
@@ -196,6 +202,9 @@ class _MaterialControlsState extends State<MaterialControls> {
           });
         },
         onHorizontalDragEnd: (details) {
+          if (!_dragging) {
+            return;
+          }
           _dragging = false;
           setState(() {
             controller.seekTo(_seekPostion);
@@ -387,6 +396,9 @@ class _MaterialControlsState extends State<MaterialControls> {
   void _updateState() {
     setState(() {
       _latestValue = controller.value;
+      if (!_latestValue.isPlaying) {
+        _seekPostion = Duration(seconds: _latestValue.position.inSeconds);
+      }
     });
   }
 
