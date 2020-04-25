@@ -218,8 +218,8 @@ class _MaterialControlsState extends State<MaterialControls> {
               duration: Duration(milliseconds: 300),
               child: _dragging
                   ? Container(
-                      width: 120,
-                      height: 60,
+                      width: 70,
+                      height: 40,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: Colors.black54,
@@ -229,7 +229,7 @@ class _MaterialControlsState extends State<MaterialControls> {
                         formatDuration(_seekPostion),
                         style: new TextStyle(
                           color: Color(0xFFFFFFFF),
-                          fontSize: 26.0,
+                          fontSize: 16.0,
                         ),
                       ),
                     )
@@ -320,7 +320,7 @@ class _MaterialControlsState extends State<MaterialControls> {
       child: Text(
         '${formatDuration(position)} / ${formatDuration(duration)}',
         style: TextStyle(
-          fontSize: 14.0,
+          fontSize: 11.0,
           color: lightColor,
         ),
       ),
